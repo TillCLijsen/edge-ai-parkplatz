@@ -1,0 +1,14 @@
+# Umgebung und IDE
+.venv/
+.idea/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Datensätze (zu gross für Git, Bezugsquelle steht im README)
+daten/
+*.zip
+*.tar.gz
+
+# Trainierte Modelle (werden per Skript neu erzeugt)
+modelle/
