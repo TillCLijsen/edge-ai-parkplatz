@@ -8,6 +8,7 @@ __pycache__/
 # Datensätze (zu gross für Git, Bezugsquelle steht im README)
 daten/
 *.zip
+*.tar
 *.tar.gz
 
 # Trainierte Modelle (werden per Skript neu erzeugt)
