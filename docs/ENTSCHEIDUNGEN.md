@@ -14,6 +14,7 @@ Grundlage für Kapitel „Prozessreflexion und Dokumentation“ (Aufgabenteil 4a
 | E7 | 16.11.2026 | Zielgerät MacBook M2, nur CPU, 1 und 4 Threads | GPU/Neural Engine nutzen | Annäherung an schwächere Edge-Geräte; Vergleich von Hardware-Settings |
 | E8 | 16.11.2026 | Split nach Tagen, geschichtet nach Regentagen: UFPR04/UFPR05 je 50 % Test A, Rest 80/20 Training/Validierung; PUCPR 50 % Test B, 50 % nur für Anpassungsversuch (src/split.py, Seed 42) | Zufallssplit über Bilder; Split über alle Parkplätze gemeinsam | Protokoll der Datensatzautoren (Tage nur in einer Menge, 50/50); Schichtung sichert Regen in jeder Testmenge; PUCPR bleibt als fremder Parkplatz vor und nach Anpassung vergleichbar |
 | E9 | 16.11.2026 | Plätze ohne `occupied`-Label und das Bild ohne XML werden ausgeschlossen | Label schätzen oder aus PKLotSegmented übernehmen | Keine unbelegten Annahmen in Trainings- oder Testdaten |
+| E10 | 16.11.2026 | Ausschnitt über das gedrehte Rechteck (rotatedRect) der XML, aufgerichtet mit langer Seite senkrecht, skaliert auf 64×64 Pixel, ImageNet-Normalisierung; eine gemeinsame Funktion für Training, Evaluation und Betrieb (src/vorverarbeitung.py) | 224×224 (Standard für ImageNet-Modelle); fertige Ausschnitte aus PKLotSegmented | Gemessene Platzgrösse: kurze Seite meist 32–68 px, lange Seite meist 52–121 px; 224 hiesse 4–5-fach hochskalieren bei ca. 12-facher Rechenlast; gemeinsame Funktion verhindert Abweichungen zwischen Training und Betrieb |
 
 ## Befunde Roboflow-Export (Grundlage für E4 und E5)
 
@@ -38,3 +39,9 @@ Grundlage für Kapitel „Prozessreflexion und Dokumentation“ (Aufgabenteil 4a
 - Datensatzbeschreibung nennt für UFPR05 „45 parking spaces“, die XML-Dateien enthalten 40 Plätze pro Bild
 - Lizenz laut Datei `licence`: CC BY 4.0
 - Die Datensatzbeschreibung schreibt vor, dass Bilder desselben Tages nur in Training *oder* Test vorkommen dürfen (Abschnitt 3.1) → bestätigt E5
+
+## Herausforderungen und Fehler (für Kapitel 4a)
+
+| Datum | Problem | Wie entdeckt | Lösung |
+|---|---|---|---|
+| 16.11.2026 | Ausschnitte quer liegender Plätze wurden gespiegelt (affine Abbildung mit Determinante −1) | Vergleich mit PKLotSegmented (src/pruefe_ausschnitte.py): PUCPR-Korrelation nur 0,543 im Median, Vergleichsgrafik zeigte gespiegelte Ausschnitte | Abbildung auf reine Drehung korrigiert; danach Median 0,973, Minimum 0,838, Label 296/296 identisch |
