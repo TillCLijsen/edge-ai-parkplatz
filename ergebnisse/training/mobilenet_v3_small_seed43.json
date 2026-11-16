@@ -1,0 +1,17 @@
+{
+  "modell": "mobilenet_v3_small",
+  "seed": 43,
+  "geraet": "mps",
+  "beste_val_balanced_accuracy": 0.99917,
+  "epochen_gelaufen": 13,
+  "minuten_gesamt": 27.0,
+  "parameter": {
+    "modell": "mobilenet_v3_small",
+    "seed": 43,
+    "epochen": 15,
+    "batch": 256,
+    "lernrate": 0.001,
+    "geduld": 3
+  },
+  "torch": "2.15.0"
+}

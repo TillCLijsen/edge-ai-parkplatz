@@ -54,3 +54,8 @@ Grundlage für Kapitel „Prozessreflexion und Dokumentation“ (Aufgabenteil 4a
 |---|---|---|---|
 | 16.11.2026 | Ausschnitte vorberechnet | Training 116.934, Validierung 28.812, Test A 125.884, Test B 205.921 Ausschnitte | 59 s gesamt |
 | 16.11.2026 | mobilenet_v3_small, Seed 42 | beste Balanced Accuracy 0,99899 (Epoche 4), Abbruch nach Epoche 7 | 13,8 min (MPS) |
+| 16.11.2026 | mobilenet_v3_small, Seed 43 | beste Balanced Accuracy 0,99917, Abbruch nach Epoche 13 | 27,0 min (MPS) |
+| 16.11.2026 | mobilenet_v3_small, Seed 44 | beste Balanced Accuracy 0,99854 (Epoche 1), Abbruch nach Epoche 4 | 8,0 min (MPS) |
+| 16.11.2026 | resnet18, Seed 42 | beste Balanced Accuracy 0,99826 (Epoche 5), Abbruch nach Epoche 8 | 29,2 min (MPS) |
+| 16.11.2026 | resnet18, Seed 43 | beste Balanced Accuracy 0,99878 (Epoche 4), Abbruch nach Epoche 7 | 25,9 min (MPS) |
+| 16.11.2026 | resnet18, Seed 44 | beste Balanced Accuracy 0,99759 (Epoche 1), Abbruch nach Epoche 4 | 13,9 min (MPS) |

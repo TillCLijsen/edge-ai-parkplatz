@@ -1,0 +1,17 @@
+{
+  "modell": "resnet18",
+  "seed": 43,
+  "geraet": "mps",
+  "beste_val_balanced_accuracy": 0.99878,
+  "epochen_gelaufen": 7,
+  "minuten_gesamt": 25.9,
+  "parameter": {
+    "modell": "resnet18",
+    "seed": 43,
+    "epochen": 15,
+    "batch": 256,
+    "lernrate": 0.001,
+    "geduld": 3
+  },
+  "torch": "2.15.0"
+}
