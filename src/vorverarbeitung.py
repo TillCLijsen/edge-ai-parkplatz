@@ -73,21 +73,34 @@ def schneide_platz_aus(bild, platz):
                           resample=Image.Resampling.BILINEAR)
 
 
-def normalisiere(ausschnitt):
-    """Skaliert auf 64×64, normalisiert und gibt ein Array (3, 64, 64) zurück."""
+def skaliere(ausschnitt):
+    """Skaliert einen Ausschnitt auf 64×64 und gibt ein uint8-Array (64, 64, 3) zurück.
+
+    In dieser Form werden die Ausschnitte für das Training zwischengespeichert.
+    """
     klein = ausschnitt.resize((EINGABE_GROESSE, EINGABE_GROESSE),
                               Image.Resampling.BILINEAR)
-    werte = np.asarray(klein, dtype=np.float32) / 255.0
+    return np.asarray(klein, dtype=np.uint8)
+
+
+def normalisiere(werte):
+    """uint8-Array (..., 64, 64, 3) → float32-Array (..., 3, 64, 64).
+
+    Werte auf 0..1 bringen, mit ImageNet-Statistik normalisieren und die
+    Kanäle nach vorne stellen, wie von PyTorch und ONNX erwartet.
+    """
+    werte = werte.astype(np.float32) / 255.0
     werte = (werte - MITTELWERT) / STANDARDABWEICHUNG
-    return werte.transpose(2, 0, 1)  # Kanäle zuerst, wie von PyTorch/ONNX erwartet
+    return np.ascontiguousarray(np.moveaxis(werte, -1, -3))
 
 
 def bereite_platz_vor(bild, platz):
-    """Ein Stellplatz: Ausschneiden und Normalisieren in einem Schritt."""
-    return normalisiere(schneide_platz_aus(bild, platz))
+    """Ein Stellplatz: Ausschneiden, Skalieren und Normalisieren."""
+    return normalisiere(skaliere(schneide_platz_aus(bild, platz)))
 
 
 def bereite_bild_vor(bild, plaetze):
     """Alle Stellplätze eines Kamerabilds als Stapel (N, 3, 64, 64)."""
     bild = bild.convert("RGB")
-    return np.stack([bereite_platz_vor(bild, p) for p in plaetze])
+    ausschnitte = np.stack([skaliere(schneide_platz_aus(bild, p)) for p in plaetze])
+    return normalisiere(ausschnitte)

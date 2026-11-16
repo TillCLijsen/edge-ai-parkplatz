@@ -15,6 +15,8 @@ Grundlage für Kapitel „Prozessreflexion und Dokumentation“ (Aufgabenteil 4a
 | E8 | 16.11.2026 | Split nach Tagen, geschichtet nach Regentagen: UFPR04/UFPR05 je 50 % Test A, Rest 80/20 Training/Validierung; PUCPR 50 % Test B, 50 % nur für Anpassungsversuch (src/split.py, Seed 42) | Zufallssplit über Bilder; Split über alle Parkplätze gemeinsam | Protokoll der Datensatzautoren (Tage nur in einer Menge, 50/50); Schichtung sichert Regen in jeder Testmenge; PUCPR bleibt als fremder Parkplatz vor und nach Anpassung vergleichbar |
 | E9 | 16.11.2026 | Plätze ohne `occupied`-Label und das Bild ohne XML werden ausgeschlossen | Label schätzen oder aus PKLotSegmented übernehmen | Keine unbelegten Annahmen in Trainings- oder Testdaten |
 | E10 | 16.11.2026 | Ausschnitt über das gedrehte Rechteck (rotatedRect) der XML, aufgerichtet mit langer Seite senkrecht, skaliert auf 64×64 Pixel, ImageNet-Normalisierung; eine gemeinsame Funktion für Training, Evaluation und Betrieb (src/vorverarbeitung.py) | 224×224 (Standard für ImageNet-Modelle); fertige Ausschnitte aus PKLotSegmented | Gemessene Platzgrösse: kurze Seite meist 32–68 px, lange Seite meist 52–121 px; 224 hiesse 4–5-fach hochskalieren bei ca. 12-facher Rechenlast; gemeinsame Funktion verhindert Abweichungen zwischen Training und Betrieb |
+| E11 | 16.11.2026 | Training: ImageNet-vortrainiertes MobileNetV3-Small (Vergleich: ResNet-18), 2 Klassen, AdamW (lr 1e-3, weight decay 1e-4), Cosine-Lernrate, Batch 256, max. 15 Epochen, Abbruch nach 3 Epochen ohne Verbesserung; Augmentierung: horizontal spiegeln, 180°-Drehung, Helligkeit/Kontrast ±30 %; Auswahl der Epoche nach Balanced Accuracy auf der Validierung; Training auf Apple-GPU (MPS); 3 Seeds (42, 43, 44) | Training von Grund auf; Auswahl nach Accuracy; Training auf CPU | Vortraining spart Daten und Zeit; Balanced Accuracy ist robust gegen die je Menge schwankende Belegungsquote; Augmentierung bildet Fahrtrichtung und Wetter nach; Training ist nicht Teil der Edge-Messung; mehrere Seeds zeigen die Streuung, da MPS nicht bitgenau reproduzierbar ist |
+| E12 | 16.11.2026 | Testmengen werden erst nach Festlegung aller Trainingseinstellungen und nur einmal pro Modell ausgewertet; keine Einstellung wird anhand der Testergebnisse angepasst | Hyperparameter mit Blick auf Test A/B wählen | Sonst wären die Testergebnisse optimistisch verzerrt |
 
 ## Befunde Roboflow-Export (Grundlage für E4 und E5)
 
@@ -45,3 +47,10 @@ Grundlage für Kapitel „Prozessreflexion und Dokumentation“ (Aufgabenteil 4a
 | Datum | Problem | Wie entdeckt | Lösung |
 |---|---|---|---|
 | 16.11.2026 | Ausschnitte quer liegender Plätze wurden gespiegelt (affine Abbildung mit Determinante −1) | Vergleich mit PKLotSegmented (src/pruefe_ausschnitte.py): PUCPR-Korrelation nur 0,543 im Median, Vergleichsgrafik zeigte gespiegelte Ausschnitte | Abbildung auf reine Drehung korrigiert; danach Median 0,973, Minimum 0,838, Label 296/296 identisch |
+
+## Läufe
+
+| Datum | Lauf | Ergebnis Validierung | Dauer |
+|---|---|---|---|
+| 16.11.2026 | Ausschnitte vorberechnet | Training 116.934, Validierung 28.812, Test A 125.884, Test B 205.921 Ausschnitte | 59 s gesamt |
+| 16.11.2026 | mobilenet_v3_small, Seed 42 | beste Balanced Accuracy 0,99899 (Epoche 4), Abbruch nach Epoche 7 | 13,8 min (MPS) |
