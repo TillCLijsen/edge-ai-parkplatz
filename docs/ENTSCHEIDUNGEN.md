@@ -22,6 +22,7 @@ Grundlage für Kapitel „Prozessreflexion und Dokumentation“ (Aufgabenteil 4a
 | E15 | 17.11.2026 | Messaufbau: nur CPU, 1 und 4 Threads, jede Messung in eigenem Prozess, 10 Bilder Aufwärmen, 3 Runden über 30 Testbilder je Parkplatz, Median und 95. Perzentil, 20 s Pause zwischen Läufen; gemessen wird die ganze Kette (JPEG dekodieren, ausschneiden, Inferenz, JSON) | Nur Inferenzzeit; Mittelwert | Die Anforderung ≤ 1 s gilt für die ganze Verarbeitung eines Kamerabilds; Median und P95 sind robust gegen Ausreisser; Pausen, weil das MacBook Air ohne Lüfter unter Dauerlast drosseln kann |
 | E16 | 17.11.2026 | INT8-Quantisierung mit Mischpräzision: die ersten zwei Faltungen und die Knoten dazwischen bleiben in FP32, alles andere INT8 (gleiche Regel für alle Modelle) | Alles INT8 mit MinMax (ursprünglich E14); Percentile-Kalibrierung; Quantisierung mit 16-Bit-Aktivierungen; quantisierungsbewusstes Training | Analyse auf der Validierung (src/quantisierung_analyse.py): nur die Ausgabe der ersten Faltung ist empfindlich (breiter Wertebereich, die meisten Kanäle nutzen nur einen kleinen Teil davon); Percentile verbessert, reicht aber nicht; 16-Bit-Aktivierungen sind auf der CPU nicht schneller als FP32; quantisierungsbewusstes Training wäre deutlich aufwendiger als nötig |
 | E17 | 17.11.2026 | Energiemessung mit powermetrics (Sampler cpu_power, alle 500 ms): 30 s Leerlauf vorher und nachher, je Variante und Thread-Anzahl 30 s Dauerbetrieb mit PUCPR-Testbildern (ganze Kette wie in der Latenzmessung), 20 s Pause; Proben nur, wenn vollständig in einer Phase (1 s Rand verworfen); Energie pro Bild brutto (Leistung unter Last / Bilder pro Sekunde) und netto (abzüglich Leerlauf); Varianten: PyTorch-Referenz, MobileNet FP32 und INT8, ResNet-18 FP32 und INT8 | Externes Strommessgerät an der Steckdose; Messung über den Akkustand | Kein Messgerät vorhanden; powermetrics ist auf macOS eingebaut und trennt CPU von Bildschirm und Peripherie; der Akkustand ist zu grob; Einschränkung: powermetrics liefert eine Schätzung aus Apples Energiemodell, keine elektrische Messung |
+| E18 | 17.11.2026 | Simulierter Live-Betrieb: pro Parkplatz ein zufälliger Testtag (Seed 42) in Aufnahmereihenfolge, MobileNet INT8 mit 1 Thread, JSON-Meldungen in eine Datei statt an einen Server; zusätzlich Zählgenauigkeit (gezählte gegen echte freie Plätze pro Bild) über alle Testbilder; Vergleich nur über annotierte Plätze | Echte Kamera; Tag von Hand wählen; nur Genauigkeit pro Platz | Keine Kamera am Parkplatz verfügbar, PKLot liefert echte Bildfolgen im 5-Minuten-Takt; zufällige Tagwahl verhindert Rosinenpicken; für den Betreiber zählt die Zahl freier Plätze; 1 Thread, weil er laut Energiemessung pro Bild am wenigsten Energie braucht |
 
 ## Befunde Roboflow-Export (Grundlage für E4 und E5)
 
@@ -74,6 +75,7 @@ Grundlage für Kapitel „Prozessreflexion und Dokumentation“ (Aufgabenteil 4a
 | 17.11.2026 | Quantisierungsanalyse MobileNet | FP32 0,99917; INT8 MinMax 0,72000; INT8 Percentile 0,96274; INT8 mit ersten zwei Faltungen in FP32 0,99892; empfindlichster Zwischenwert: Ausgabe der ersten Faltung (Bereich −154,9 bis 164,6, ändert 29,8 % der Vorhersagen), alle anderen ≤ 0,2 % | ca. 3 min |
 | 17.11.2026 | Messung (Netzteil, nacheinander) | siehe Abschnitt „Ergebnisse Messung“ | ca. 37 min |
 | 17.11.2026 | Energiemessung (Netzteil, src/energiemessung.py) | siehe Abschnitt „Ergebnisse Energie“; je Lastphase 53–55 Proben à 500 ms | ca. 12 min |
+| 17.11.2026 | Live-Betrieb (src/live_betrieb.py) | siehe Abschnitt „Ergebnisse Live-Betrieb“ | ca. 1 min |
 
 ## Ergebnisse Messung (17.11.2026, ergebnisse/messung_*.csv)
 
@@ -122,4 +124,23 @@ Befunde:
 - Unsicherheit durch den Leerlauf: Grundlast stieg von 1.150 auf 1.397 mW. Mit dem einen oder anderen Wert statt des Mittels ändert sich die Netto-Energie bei MobileNet INT8 (1 Thread) um etwa ±2,5 %; die Reihenfolge der Varianten bleibt gleich.
 - Im Dauerbetrieb etwas langsamer als in der Latenzmessung (z. B. PyTorch 1 Thread 1,49 statt 1,73 Bilder/s), vermutlich Drosselung des lüfterlosen MacBook Air unter Dauerlast; nicht separat gemessen.
 - Einschränkung: powermetrics schätzt die Leistung aus Apples Energiemodell; keine elektrische Messung, Bildschirm und Peripherie nicht enthalten.
+
+## Ergebnisse Live-Betrieb (17.11.2026, ergebnisse/live_zaehlung.csv)
+
+MobileNet INT8, 1 Thread; Zählfehler = gezählte minus echte freie Plätze pro Bild, nur annotierte Plätze.
+
+| Quelle | Parkplatz | Bilder | mittl. abs. Fehler | exakt | höchstens 1 daneben | max. Fehler | Latenz Median / max |
+|---|---|---|---|---|---|---|---|
+| Live-Tag 2012-12-12 (Mi) | UFPR04 | 120 | 0,000 | 100 % | 100 % | 0 | 11,7 / 22,2 ms |
+| Live-Tag 2013-03-19 (Di) | UFPR05 | 142 | 0,056 | 94,4 % | 100 % | 1 | 15,7 / 61,7 ms |
+| Live-Tag 2012-10-28 (So) | PUCPR | 156 | 0,000 | 100 % | 100 % | 0 | 30,3 / 71,8 ms |
+| alle Testbilder | UFPR04 | 1.840 | 0,038 | 96,4 % | 99,8 % | 3 | – |
+| alle Testbilder | UFPR05 | 1.869 | 0,050 | 95,6 % | 99,5 % | 3 | – |
+| alle Testbilder | PUCPR | 2.160 | 0,083 | 93,3 % | 99,1 % | 12 | – |
+
+Befunde:
+- Echtzeit: Bildabstand im Datensatz 5 min, längste Verarbeitung 71,8 ms; Reserve über drei Grössenordnungen.
+- Die zufällig gezogenen Live-Tage sind wenig repräsentativ: PUCPR war ein Sonntag mit 98–100 freien Plätzen, UFPR04 fast voll (0–5 frei). Die 100 % dort sagen wenig; massgeblich für die Zählgenauigkeit sind die Zahlen über alle Testbilder. Tag wurde nachträglich nicht geändert (sonst Rosinenpicken), im Bericht offen benennen.
+- Mittlerer Fehler (Vorzeichen) nahe 0 (0,000 bis 0,023): keine systematische Über- oder Unterzählung.
+- Ausreisser: ein PUCPR-Bild mit 12 Plätzen Abweichung; wird in der Fehleranalyse untersucht.
 

@@ -1,0 +1,9 @@
+
+=== Start 2026-11-17 17:45:24 ===
+UFPR04 2012-12-12: 120 Bilder, Zählfehler mittel 0.0, exakt 100.0%, max 0; Latenz Median 11.7 ms, max 22.2 ms; Bildabstand im Datensatz 5.0 min
+UFPR05 2013-03-19: 142 Bilder, Zählfehler mittel 0.056, exakt 94.4%, max 1; Latenz Median 15.7 ms, max 61.7 ms; Bildabstand im Datensatz 5.0 min
+PUCPR 2012-10-28: 156 Bilder, Zählfehler mittel 0.0, exakt 100.0%, max 0; Latenz Median 30.3 ms, max 71.8 ms; Bildabstand im Datensatz 5.0 min
+PUCPR alle Testbilder: 2160 Bilder, Zählfehler mittel 0.083, exakt 93.3%, höchstens 1 daneben 99.1%, max 12
+UFPR04 alle Testbilder: 1840 Bilder, Zählfehler mittel 0.038, exakt 96.4%, höchstens 1 daneben 99.8%, max 3
+UFPR05 alle Testbilder: 1869 Bilder, Zählfehler mittel 0.05, exakt 95.6%, höchstens 1 daneben 99.5%, max 3
+Gespeichert: ergebnisse/live_meldungen_*.jsonl, live_bilder.csv, live_zaehlung.csv, abbildungen/live_*.png
