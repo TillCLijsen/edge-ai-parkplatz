@@ -1,0 +1,5 @@
+variante,val_balanced_accuracy
+fp32,0.99917
+int8_minmax,0.72
+int8_percentile,0.96274
+int8_minmax_erste_zwei_faltungen_fp32,0.99892

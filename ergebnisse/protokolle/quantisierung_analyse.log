@@ -1,0 +1,21 @@
+
+=== Start 2026-11-17 13:08:03 ===
+141 Zwischenwerte geprüft, die fünf empfindlichsten:
+    tensor    unten    oben  geaenderte_vorhersagen_prozent
+   getitem -154.870 164.618                           29.77
+ hardswish   -0.375 164.618                           17.47
+ getitem_9  -23.486  22.469                            0.20
+getitem_27  -13.576  18.095                            0.03
+    relu_2    0.000  22.469                            0.03
+fp32                                     Val. Balanced Accuracy 0.99917
+mobilenet_v3_small_seed43: 6.37 MB → 1.80 MB, in FP32 belassen: 0 Knoten
+int8_minmax                              Val. Balanced Accuracy 0.72000
+Collecting tensor data and making histogram ...
+Finding optimal threshold for each tensor using 'percentile' algorithm ...
+Number of tensors : 142
+Number of histogram bins : 2048
+Percentile : (0.0010000000000047748,99.999)
+mobilenet_v3_small_seed43: 6.37 MB → 1.80 MB, in FP32 belassen: 0 Knoten
+int8_percentile                          Val. Balanced Accuracy 0.96274
+mobilenet_v3_small_seed43: 6.37 MB → 1.80 MB, in FP32 belassen: 4 Knoten
+int8_minmax_erste_zwei_faltungen_fp32    Val. Balanced Accuracy 0.99892

@@ -1,0 +1,36 @@
+
+=== Start 2026-11-17 11:45:29 ===
+Direkt nach dem Pruning: Val. Balanced Accuracy 0.50000, Anteil Null 50.0%
+Epoche 1: Val. Balanced Accuracy 0.50000
+Epoche 2: Val. Balanced Accuracy 0.50000
+Gespeichert: mobilenet_v3_small_seed43_pruned50.pt, Anteil Null 50.0%, beste Val. Balanced Accuracy 0.50000
+[torch.onnx] Obtain model graph for `MobileNetV3([...]` with `torch.export.export(..., strict=False)`...
+[torch.onnx] Obtain model graph for `MobileNetV3([...]` with `torch.export.export(..., strict=False)`... ✅
+[torch.onnx] Run decompositions...
+[torch.onnx] Run decompositions... ✅
+[torch.onnx] Translate the graph into ONNX...
+[torch.onnx] Translate the graph into ONNX... ✅
+[torch.onnx] Optimize the ONNX graph...
+[torch.onnx] Optimize the ONNX graph... ✅
+   Parität: Vorhersagen gleich 100.0000%, max. Abweichung der Ausgaben 0.00e+00
+ONNX: mobilenet_v3_small_seed43_pruned50_fp32.onnx (6.37 MB)
+
+=== Start 2026-11-17 13:04:41 ===
+Direkt nach dem Pruning: Val. Balanced Accuracy 0.99880, Anteil Null 50.0%
+   Schicht features.1.block.1.fc1: 100.0% null
+   Schicht features.1.block.1.fc2: 100.0% null
+   Schicht features.4.block.2.fc1: 96.7% null
+   Schicht features.4.block.2.fc2: 96.1% null
+Epoche 1: Val. Balanced Accuracy 0.99878
+Epoche 2: Val. Balanced Accuracy 0.99853
+Gespeichert: mobilenet_v3_small_seed43_pruned50.pt, Anteil Null 50.0%, beste Val. Balanced Accuracy 0.99878
+[torch.onnx] Obtain model graph for `MobileNetV3([...]` with `torch.export.export(..., strict=False)`...
+[torch.onnx] Obtain model graph for `MobileNetV3([...]` with `torch.export.export(..., strict=False)`... ✅
+[torch.onnx] Run decompositions...
+[torch.onnx] Run decompositions... ✅
+[torch.onnx] Translate the graph into ONNX...
+[torch.onnx] Translate the graph into ONNX... ✅
+[torch.onnx] Optimize the ONNX graph...
+[torch.onnx] Optimize the ONNX graph... ✅
+   Parität: Vorhersagen gleich 100.0000%, max. Abweichung der Ausgaben 1.01e-04
+ONNX: mobilenet_v3_small_seed43_pruned50_fp32.onnx (6.37 MB)

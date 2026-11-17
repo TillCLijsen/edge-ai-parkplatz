@@ -1,0 +1,12 @@
+{
+  "plattform": "macOS-26.6.2-arm64-arm-64bit",
+  "python": "3.12.10",
+  "onnxruntime": "1.32.0",
+  "numpy": "2.5.5",
+  "kerne_physisch": 8,
+  "kerne_logisch": 8,
+  "ram_gb": 25.8,
+  "chip": "Apple M2",
+  "modell": "Mac14,2",
+  "netzteil_angeschlossen": true
+}

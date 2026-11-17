@@ -1,0 +1,10 @@
+
+=== Start 2026-11-17 11:47:47 ===
+mobilenet_v3_small_seed43: 6.37 MB → 1.80 MB
+mobilenet_v3_small_seed43_pruned50: 6.37 MB → 1.80 MB
+resnet18_seed43: 44.78 MB → 11.34 MB
+
+=== Start 2026-11-17 13:07:30 ===
+mobilenet_v3_small_seed43: 6.37 MB → 1.80 MB, in FP32 belassen: 4 Knoten
+mobilenet_v3_small_seed43_pruned50: 6.37 MB → 1.80 MB, in FP32 belassen: 4 Knoten
+resnet18_seed43: 44.78 MB → 11.48 MB, in FP32 belassen: 4 Knoten
