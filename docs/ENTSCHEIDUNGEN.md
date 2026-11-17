@@ -76,6 +76,7 @@ Grundlage für Kapitel „Prozessreflexion und Dokumentation“ (Aufgabenteil 4a
 | 17.11.2026 | Messung (Netzteil, nacheinander) | siehe Abschnitt „Ergebnisse Messung“ | ca. 37 min |
 | 17.11.2026 | Energiemessung (Netzteil, src/energiemessung.py) | siehe Abschnitt „Ergebnisse Energie“; je Lastphase 53–55 Proben à 500 ms | ca. 12 min |
 | 17.11.2026 | Live-Betrieb (src/live_betrieb.py) | siehe Abschnitt „Ergebnisse Live-Betrieb“ | ca. 1 min |
+| 17.11.2026 | Fehleranalyse (src/fehleranalyse.py) | siehe Abschnitt „Ergebnisse Fehleranalyse“ | ca. 1 min |
 
 ## Ergebnisse Messung (17.11.2026, ergebnisse/messung_*.csv)
 
@@ -143,4 +144,30 @@ Befunde:
 - Die zufällig gezogenen Live-Tage sind wenig repräsentativ: PUCPR war ein Sonntag mit 98–100 freien Plätzen, UFPR04 fast voll (0–5 frei). Die 100 % dort sagen wenig; massgeblich für die Zählgenauigkeit sind die Zahlen über alle Testbilder. Tag wurde nachträglich nicht geändert (sonst Rosinenpicken), im Bericht offen benennen.
 - Mittlerer Fehler (Vorzeichen) nahe 0 (0,000 bis 0,023): keine systematische Über- oder Unterzählung.
 - Ausreisser: ein PUCPR-Bild mit 12 Plätzen Abweichung; wird in der Fehleranalyse untersucht.
+
+## Ergebnisse Fehleranalyse (17.11.2026, ergebnisse/fehler_*.csv, abbildungen/)
+
+MobileNet INT8 auf Test A und B: 331.805 Ausschnitte, 156 frei als belegt erkannt, 207 belegt als frei erkannt (zusammen 363, passt zu messung_genauigkeit.csv).
+
+Fehler nach Wetter (pro 10.000 Plätze der jeweiligen Klasse):
+
+| Menge | Wetter | frei als belegt (pro 10.000 freie) | belegt als frei (pro 10.000 belegte) | Fehler absolut |
+|---|---|---|---|---|
+| Test A | Cloudy | 8,75 | 11,11 | 15 + 27 |
+| Test A | Rainy | 3,90 | 47,92 | 2 + 13 |
+| Test A | Sunny | 13,27 | 15,87 | 54 + 57 |
+| Test B | Cloudy | 2,41 | 2,26 | 15 + 5 |
+| Test B | Rainy | 3,59 | 13,27 | 4 + 34 |
+| Test B | Sunny | 12,23 | 22,98 | 66 + 71 |
+
+Genauigkeit gegen Latenz (Fehler pro 10.000 Plätze Test A+B; Latenz PUCPR, 1 Thread): PyTorch FP32 8,95 / 577,9 ms; MobileNet FP32 8,95 / 128,9 ms; MobileNet INT8 10,94 / 30,6 ms; gepruned FP32 9,22 / 128,8 ms; gepruned INT8 10,16 / 30,3 ms; ResNet-18 FP32 16,21 / 558,1 ms; ResNet-18 INT8 15,79 / 146,7 ms.
+
+Befunde:
+- Bild mit den meisten Fehlern (PUCPR, 2012-10-25 13:03, Regen, 12 Plätze „belegt, als frei erkannt“, fehler_bild_1.png): bei Sichtprüfung sind diese 12 Plätze leer; die Annotation passt hier nicht zum Bild, das Modell liegt richtig.
+- Zweitschlimmstes Bild (PUCPR, 2012-10-23 09:00, Regen, 6 Fehler, fehler_bild_2.png): in den falsch erkannten Plätzen stehen überwiegend dunkle Autos auf nassem Asphalt; echte Modellfehler (Sichtprüfung in verkleinerter Ansicht, in voller Grösse nachprüfen).
+- Die 8 sichersten Fehler je Richtung (fehler_beispiele.png) sind zum Teil Grenzfälle oder fragwürdige Annotationen: leere Plätze als belegt annotiert; als frei annotierte Plätze mit durchfahrendem Auto oder Fussgängern; Nachbarauto ragt in den Platz.
+- Folgerung: Ein Teil der gemessenen Fehler geht auf die Annotation zurück; die Fehlerquoten sind eher eine Obergrenze. Nur durch Sichtprüfung einzelner Beispiele gestützt, keine systematische Nachannotation; im Bericht entsprechend vorsichtig formulieren.
+- Regen: belegte Plätze werden häufiger als frei erkannt (Test A 47,9 pro 10.000 belegte gegenüber 11,1 bewölkt und 15,9 sonnig; Test B 13,3 gegenüber 2,3 und 23,0). In Test A beruht der Wert auf nur 13 Fehlern; in Test B ist Sonne schlechter als Regen. Keine eindeutige Wetterabhängigkeit belegbar; zwei der drei schlimmsten Bilder stammen aber von Regentagen.
+- Auffällig: PUCPR 2012-09-15 (sonnig) hat mehrere aufeinanderfolgende Bilder mit Fehlern (11:27–11:32 und 15:37–15:47), also dauerhafte Fehler an denselben Plätzen über mehrere Aufnahmen; Ursache nicht untersucht (möglicherweise Schatten).
+- INT8 kostet rund 2 Fehler pro 10.000 Plätze (10,94 statt 8,95) bei 4,2-fach kürzerer Latenz; ResNet-18 ist langsamer und zugleich ungenauer als MobileNet.
 

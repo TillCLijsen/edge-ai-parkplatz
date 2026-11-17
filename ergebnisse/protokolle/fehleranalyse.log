@@ -1,0 +1,31 @@
+
+=== Start 2026-11-17 17:55:45 ===
+331805 Ausschnitte, 156 frei als belegt, 207 belegt als frei erkannt
+Bilder mit den meisten falsch erkannten Plätzen:
+ menge parkplatz wetter        tag                   datei  frei_echt  frei_gezaehlt  fp  fn  fehler  falsch_klassifiziert
+test_b     PUCPR  Rainy 2012-10-25 2012-10-25_13_03_33.jpg         45             57   0  12      12                    12
+test_b     PUCPR  Rainy 2012-10-23 2012-10-23_09_00_52.jpg          6             12   0   6       6                     6
+test_b     PUCPR  Sunny 2012-09-15 2012-09-15_15_42_23.jpg         77             79   1   3       2                     4
+test_b     PUCPR  Sunny 2012-09-15 2012-09-15_15_47_23.jpg         78             80   1   3       2                     4
+test_b     PUCPR  Sunny 2012-09-15 2012-09-15_15_37_23.jpg         76             77   1   2       1                     3
+test_a    UFPR04  Sunny 2012-12-20 2012-12-20_10_00_04.jpg          0              3   0   3       3                     3
+test_a    UFPR05  Sunny 2013-03-03 2013-03-03_09_35_04.jpg         40             37   3   0      -3                     3
+test_a    UFPR05  Sunny 2013-03-10 2013-03-10_10_15_04.jpg         40             37   3   0      -3                     3
+test_b     PUCPR  Sunny 2012-09-15 2012-09-15_11_27_12.jpg         23             23   1   1       0                     2
+test_b     PUCPR  Sunny 2012-09-15 2012-09-15_11_32_13.jpg         25             25   1   1       0                     2
+Fehler nach Wetter:
+ menge wetter  plaetze  frei  belegt  fp  fn  fehler_pro_10000  fp_pro_10000_freie  fn_pro_10000_belegte
+test_a Cloudy    41449 17146   24303  15  27             10.13                8.75                 11.11
+test_a  Rainy     7839  5126    2713   2  13             19.14                3.90                 47.92
+test_a  Sunny    76596 40680   35916  54  57             14.49               13.27                 15.87
+test_b Cloudy    84288 62181   22107  15   5              2.37                2.41                  2.26
+test_b  Rainy    36781 11155   25626   4  34             10.33                3.59                 13.27
+test_b  Sunny    84852 53958   30894  66  71             16.15               12.23                 22.98
+PyTorch FP32 (Referenz)      577.9 ms    8.95 Fehler pro 10.000 Plätze
+MobileNet FP32               128.9 ms    8.95 Fehler pro 10.000 Plätze
+MobileNet INT8                30.6 ms   10.94 Fehler pro 10.000 Plätze
+MobileNet gepruned FP32      128.8 ms    9.22 Fehler pro 10.000 Plätze
+MobileNet gepruned INT8       30.3 ms   10.16 Fehler pro 10.000 Plätze
+ResNet-18 FP32               558.1 ms   16.21 Fehler pro 10.000 Plätze
+ResNet-18 INT8               146.7 ms   15.79 Fehler pro 10.000 Plätze
+Gespeichert: ergebnisse/fehler_ausreisser.csv, fehler_wetter.csv, abbildungen/fehler_bild_1-3.png, fehler_beispiele.png, genauigkeit_latenz.png

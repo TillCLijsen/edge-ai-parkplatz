@@ -39,6 +39,14 @@ Reihenfolge:
 | 9 | `python -m src.pruning` | gepruntes Modell (50 %) als `.pt` und `.onnx` |
 | 10 | `python -m src.quantisierung` | `modelle/onnx/*_int8.onnx` |
 | 11 | `python -m src.messung` | Grösse, Genauigkeit, Latenz, Arbeitsspeicher in `ergebnisse/` |
+| 12 | `python -m src.quantisierung_analyse` | Empfindlichkeit einzelner Zwischenwerte und INT8-Varianten auf der Validierung |
+| 13 | `python -m src.energiemessung` | Energie pro Bild mit `powermetrics` (fragt einmal nach dem Mac-Passwort) |
+| 14 | `python -m src.live_betrieb` | Simulierter Kamera-Stream, JSON-Meldungen, Zählgenauigkeit, Abbildungen |
+| 15 | `python -m src.fehleranalyse` | Ausreisser, Fehlerbeispiele, Fehler nach Wetter, Abbildung Genauigkeit gegen Latenz |
+
+Alle Skripte ab Schritt 8 schreiben ihre Konsolenausgabe zusätzlich nach
+`ergebnisse/protokolle/`. Entscheidungen, Fehler und Ergebnisse sind in
+`docs/ENTSCHEIDUNGEN.md` festgehalten.
 
 Gemeinsam genutzte Module: `konfiguration.py` (Pfade, Seed), `vorverarbeitung.py`
 (Ausschneiden und Normalisieren, identisch in Training und Betrieb),
