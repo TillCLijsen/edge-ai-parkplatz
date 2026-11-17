@@ -1,0 +1,39 @@
+
+=== Start 2026-11-17 16:33:54 ===
+Messaufbau: {'plattform': 'macOS-26.6.2-arm64-arm-64bit', 'python': '3.12.10', 'onnxruntime': '1.32.0', 'numpy': '2.5.5', 'kerne_physisch': 8, 'kerne_logisch': 8, 'ram_gb': 25.8, 'chip': 'Apple M2', 'modell': 'Mac14,2', 'netzteil_angeschlossen': True}
+Bitte im macOS-Fenster das Passwort eingeben. Dauer ca. 12 min.
+
+=== Start 2026-11-17 16:44:10 ===
+Messaufbau: {'plattform': 'macOS-26.6.2-arm64-arm-64bit', 'python': '3.12.10', 'onnxruntime': '1.32.0', 'numpy': '2.5.5', 'kerne_physisch': 8, 'kerne_logisch': 8, 'ram_gb': 25.8, 'chip': 'Apple M2', 'modell': 'Mac14,2', 'netzteil_angeschlossen': True}
+Bitte im macOS-Fenster das Passwort eingeben. Dauer ca. 12 min.
+powermetrics schreibt keine Daten. Fehlermeldung: (keine)
+
+=== Start 2026-11-17 16:45:32 ===
+Messaufbau: {'plattform': 'macOS-26.6.2-arm64-arm-64bit', 'python': '3.12.10', 'onnxruntime': '1.32.0', 'numpy': '2.5.5', 'kerne_physisch': 8, 'kerne_logisch': 8, 'ram_gb': 25.8, 'chip': 'Apple M2', 'modell': 'Mac14,2', 'netzteil_angeschlossen': True}
+Bitte im macOS-Fenster das Passwort eingeben. Dauer ca. 12 min.
+powermetrics läuft.
+leerlauf_vorher: fertig
+pytorch_mobilenet_v3_small_seed43        1 Thread(s): 1.5 Bilder/s
+pytorch_mobilenet_v3_small_seed43        4 Thread(s): 1.9 Bilder/s
+mobilenet_v3_small_seed43_fp32           1 Thread(s): 6.7 Bilder/s
+mobilenet_v3_small_seed43_fp32           4 Thread(s): 19.9 Bilder/s
+mobilenet_v3_small_seed43_int8           1 Thread(s): 28.7 Bilder/s
+mobilenet_v3_small_seed43_int8           4 Thread(s): 37.8 Bilder/s
+resnet18_seed43_fp32                     1 Thread(s): 1.6 Bilder/s
+resnet18_seed43_fp32                     4 Thread(s): 4.1 Bilder/s
+resnet18_seed43_int8                     1 Thread(s): 5.9 Bilder/s
+resnet18_seed43_int8                     4 Thread(s): 12.6 Bilder/s
+leerlauf_nachher: fertig
+CPU-Leistung im Leerlauf: 1273 mW
+pytorch_mobilenet_v3_small_seed43        1 Thread(s):   5787 mW,   1.5 Bilder/s, netto 3023.7 mJ pro Bild (55 Proben)
+pytorch_mobilenet_v3_small_seed43        4 Thread(s):  12347 mW,   1.9 Bilder/s, netto 5850.9 mJ pro Bild (55 Proben)
+mobilenet_v3_small_seed43_fp32           1 Thread(s):   5216 mW,   6.7 Bilder/s, netto 590.4 mJ pro Bild (53 Proben)
+mobilenet_v3_small_seed43_fp32           4 Thread(s):  16380 mW,  19.9 Bilder/s, netto 757.8 mJ pro Bild (53 Proben)
+mobilenet_v3_small_seed43_int8           1 Thread(s):   6256 mW,  28.7 Bilder/s, netto 173.3 mJ pro Bild (55 Proben)
+mobilenet_v3_small_seed43_int8           4 Thread(s):  17226 mW,  37.8 Bilder/s, netto 422.3 mJ pro Bild (53 Proben)
+resnet18_seed43_fp32                     1 Thread(s):   5680 mW,   1.6 Bilder/s, netto 2817.4 mJ pro Bild (53 Proben)
+resnet18_seed43_fp32                     4 Thread(s):  20016 mW,   4.1 Bilder/s, netto 4581.7 mJ pro Bild (55 Proben)
+resnet18_seed43_int8                     1 Thread(s):   6905 mW,   5.9 Bilder/s, netto 950.1 mJ pro Bild (55 Proben)
+resnet18_seed43_int8                     4 Thread(s):  18725 mW,  12.6 Bilder/s, netto 1380.1 mJ pro Bild (53 Proben)
+Gespeichert: ergebnisse/energie_phasen.csv, energie_proben.csv, Rohdaten daten/energie/powermetrics_20261117_164533.plist
+powermetrics läuft evtl. noch kurz weiter und beendet sich von selbst.

@@ -1,0 +1,13 @@
+phase,variante,threads,dauer_s,bilder,bilder_pro_sekunde,proben,cpu_mw,cpu_gpu_ane_mw,energie_pro_bild_mj_brutto,energie_pro_bild_mj_netto
+leerlauf_vorher,-,0,30.0,0,,53,1150.0,1150.3,,
+last,pytorch_mobilenet_v3_small_seed43,1,30.1,45,1.49,55,5787.4,5787.5,3876.7,3023.7
+last,pytorch_mobilenet_v3_small_seed43,4,30.1,57,1.89,55,12347.1,12348.9,6523.7,5850.9
+last,mobilenet_v3_small_seed43_fp32,1,30.1,201,6.68,53,5216.0,5216.2,781.1,590.4
+last,mobilenet_v3_small_seed43_fp32,4,30.0,599,19.93,53,16380.0,16381.7,821.7,757.8
+last,mobilenet_v3_small_seed43_int8,1,30.0,863,28.75,55,6256.1,6256.6,217.6,173.3
+last,mobilenet_v3_small_seed43_int8,4,30.0,1134,37.78,53,17226.3,17228.2,456.0,422.3
+last,resnet18_seed43_fp32,1,30.1,47,1.56,53,5679.9,5680.5,3631.6,2817.4
+last,resnet18_seed43_fp32,4,30.1,123,4.09,55,20015.7,20017.9,4893.0,4581.7
+last,resnet18_seed43_int8,1,30.0,178,5.93,55,6905.2,6907.2,1164.9,950.1
+last,resnet18_seed43_int8,4,30.1,380,12.65,53,18724.7,18726.6,1480.8,1380.1
+leerlauf_nachher,-,0,30.0,0,,53,1396.8,1398.9,,

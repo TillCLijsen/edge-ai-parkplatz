@@ -21,6 +21,7 @@ Grundlage für Kapitel „Prozessreflexion und Dokumentation“ (Aufgabenteil 4a
 | E14 | 17.11.2026 | Optimierungsvarianten: ONNX FP32, INT8 statisch (QDQ, Gewichte pro Kanal, Kalibrierung mit 1.000 Trainingsausschnitten, MinMax), 50 % globales L1-Pruning mit 2 Epochen Nachtraining, Pruning + INT8; Referenz: PyTorch FP32 auf CPU | Dynamische Quantisierung; strukturiertes Pruning; FP16 | Statische Quantisierung quantisiert auch die Aktivierungen und eignet sich für CNNs; unstrukturiertes Pruning ist der einfache Standard, sein fehlender Latenzgewinn auf dichter CPU-Hardware ist selbst ein Ergebnis; FP16 weggelassen, weil die Aufgabenstellung Quantisierung, Pruning und leichte Architekturen nennt und das Seitenlimit wenige, gut begründete Varianten verlangt |
 | E15 | 17.11.2026 | Messaufbau: nur CPU, 1 und 4 Threads, jede Messung in eigenem Prozess, 10 Bilder Aufwärmen, 3 Runden über 30 Testbilder je Parkplatz, Median und 95. Perzentil, 20 s Pause zwischen Läufen; gemessen wird die ganze Kette (JPEG dekodieren, ausschneiden, Inferenz, JSON) | Nur Inferenzzeit; Mittelwert | Die Anforderung ≤ 1 s gilt für die ganze Verarbeitung eines Kamerabilds; Median und P95 sind robust gegen Ausreisser; Pausen, weil das MacBook Air ohne Lüfter unter Dauerlast drosseln kann |
 | E16 | 17.11.2026 | INT8-Quantisierung mit Mischpräzision: die ersten zwei Faltungen und die Knoten dazwischen bleiben in FP32, alles andere INT8 (gleiche Regel für alle Modelle) | Alles INT8 mit MinMax (ursprünglich E14); Percentile-Kalibrierung; Quantisierung mit 16-Bit-Aktivierungen; quantisierungsbewusstes Training | Analyse auf der Validierung (src/quantisierung_analyse.py): nur die Ausgabe der ersten Faltung ist empfindlich (breiter Wertebereich, die meisten Kanäle nutzen nur einen kleinen Teil davon); Percentile verbessert, reicht aber nicht; 16-Bit-Aktivierungen sind auf der CPU nicht schneller als FP32; quantisierungsbewusstes Training wäre deutlich aufwendiger als nötig |
+| E17 | 17.11.2026 | Energiemessung mit powermetrics (Sampler cpu_power, alle 500 ms): 30 s Leerlauf vorher und nachher, je Variante und Thread-Anzahl 30 s Dauerbetrieb mit PUCPR-Testbildern (ganze Kette wie in der Latenzmessung), 20 s Pause; Proben nur, wenn vollständig in einer Phase (1 s Rand verworfen); Energie pro Bild brutto (Leistung unter Last / Bilder pro Sekunde) und netto (abzüglich Leerlauf); Varianten: PyTorch-Referenz, MobileNet FP32 und INT8, ResNet-18 FP32 und INT8 | Externes Strommessgerät an der Steckdose; Messung über den Akkustand | Kein Messgerät vorhanden; powermetrics ist auf macOS eingebaut und trennt CPU von Bildschirm und Peripherie; der Akkustand ist zu grob; Einschränkung: powermetrics liefert eine Schätzung aus Apples Energiemodell, keine elektrische Messung |
 
 ## Befunde Roboflow-Export (Grundlage für E4 und E5)
 
@@ -54,6 +55,7 @@ Grundlage für Kapitel „Prozessreflexion und Dokumentation“ (Aufgabenteil 4a
 | 17.11.2026 | Messung ungültig: Skripte liefen gleichzeitig und der Mac lief auf Akku | Zeitstempel der Dateien überlappten, resnet18_int8 fehlte in der Messung, messaufbau.json zeigte netzteil_angeschlossen: false | Alle Läufe gestoppt, Kette nacheinander mit Netzteil neu gestartet; Skripte schreiben ihre Ausgaben seither zusätzlich nach ergebnisse/protokolle/ |
 | 17.11.2026 | Pruning machte das Modell unbrauchbar (Balanced Accuracy 0,5, nur noch eine Klasse) | Messung der Genauigkeit nach dem Pruning, danach Anteil Nullen je Schicht in der ONNX-Datei geprüft: Ausgabeschicht zu 100 % genullt, Nachtraining kann genullte Gewichte nicht zurückholen | Ausgabeschicht vom Pruning ausgenommen; Skript meldet jetzt Schichten mit mehr als 90 % Nullen |
 | 17.11.2026 | INT8 bei MobileNetV3-Small verlor stark an Genauigkeit (Test A 0,70, Test B 0,80; Validierung 0,72) | Messung der Genauigkeit; Ursache auf der Validierung gesucht: Gewichte allein auf 8 Bit unkritisch, dann jeden Zwischenwert einzeln auf 8 Bit gerundet: die Ausgabe der ersten Faltung ändert allein 31 % der Vorhersagen | Mischpräzision (E16); Auswahl nur über die Validierung, die Testergebnisse des ersten Laufs bleiben als gescheiterter Versuch dokumentiert |
+| 17.11.2026 | Energiemessung: powermetrics schrieb keine Daten (Rohdatei blieb leer) | Erste Vermutung (im Hintergrund gestarteter Prozess wird beendet) war falsch; die Fehlermeldung der Shell zeigte „Operation not permitted“ beim Schreiben in den Projektordner | Ursache: macOS schützt den Ordner Schreibtisch auch vor dem mit Administratorrechten gestarteten Prozess; powermetrics schreibt jetzt nach /tmp, das Skript kopiert die Rohdaten danach nach daten/energie/ |
 
 ## Läufe
 
@@ -71,6 +73,7 @@ Grundlage für Kapitel „Prozessreflexion und Dokumentation“ (Aufgabenteil 4a
 | 17.11.2026 | Pruning 50 %, Ausgabeschicht ausgenommen | 0,99880 direkt danach, 0,99878 nach Epoche 1 (gewählt), 0,99853 nach Epoche 2; vollständig genullt: SE-Schichten in features.1 (100 %), fast vollständig: features.4 (96–97 %) | ca. 2,5 min |
 | 17.11.2026 | Quantisierungsanalyse MobileNet | FP32 0,99917; INT8 MinMax 0,72000; INT8 Percentile 0,96274; INT8 mit ersten zwei Faltungen in FP32 0,99892; empfindlichster Zwischenwert: Ausgabe der ersten Faltung (Bereich −154,9 bis 164,6, ändert 29,8 % der Vorhersagen), alle anderen ≤ 0,2 % | ca. 3 min |
 | 17.11.2026 | Messung (Netzteil, nacheinander) | siehe Abschnitt „Ergebnisse Messung“ | ca. 37 min |
+| 17.11.2026 | Energiemessung (Netzteil, src/energiemessung.py) | siehe Abschnitt „Ergebnisse Energie“; je Lastphase 53–55 Proben à 500 ms | ca. 12 min |
 
 ## Ergebnisse Messung (17.11.2026, ergebnisse/messung_*.csv)
 
@@ -94,4 +97,29 @@ Befunde:
 - RAM-Spitze wird von Python und ONNX Runtime bestimmt (Grundlast ca. 51 MB, Spitze 190–200 MB für alle MobileNet-Varianten), kaum vom Modell.
 - Übertragung: Meldung als JSON 135–351 Byte statt JPEG 258–333 KB pro Bild (ca. 1.000-fach weniger Daten).
 - ResNet-18 INT8: Mit der einheitlichen Regel (E16) bleiben auch dort die ersten zwei Faltungen in FP32; dadurch langsamer als im Lauf vom 17.11.2026, 11:47 Uhr ohne diese Regel (gleicher Messaufbau, dort 105,2 ms bei 1 Thread und 61,4 ms bei 4 Threads, Genauigkeit gleich). Wird im Bericht als Folge der einheitlichen Regel genannt.
+
+## Ergebnisse Energie (17.11.2026, ergebnisse/energie_phasen.csv)
+
+powermetrics, Sampler cpu_power, 500 ms; 30 s Dauerbetrieb pro Phase mit PUCPR-Testbildern (100 Plätze); Netzteil angeschlossen. CPU-Leistung im Leerlauf: 1.150 mW vorher, 1.397 mW nachher, Mittel 1.273 mW.
+
+| Variante | Threads | Bilder/s | CPU-Leistung | Energie pro Bild brutto | Energie pro Bild netto |
+|---|---|---|---|---|---|
+| PyTorch FP32 | 1 | 1,49 | 5.787 mW | 3.877 mJ | 3.024 mJ |
+| PyTorch FP32 | 4 | 1,89 | 12.347 mW | 6.524 mJ | 5.851 mJ |
+| MobileNet ONNX FP32 | 1 | 6,68 | 5.216 mW | 781 mJ | 590 mJ |
+| MobileNet ONNX FP32 | 4 | 19,93 | 16.380 mW | 822 mJ | 758 mJ |
+| MobileNet INT8 | 1 | 28,75 | 6.256 mW | 218 mJ | 173 mJ |
+| MobileNet INT8 | 4 | 37,78 | 17.226 mW | 456 mJ | 422 mJ |
+| ResNet-18 ONNX FP32 | 1 | 1,56 | 5.680 mW | 3.632 mJ | 2.817 mJ |
+| ResNet-18 ONNX FP32 | 4 | 4,09 | 20.016 mW | 4.893 mJ | 4.582 mJ |
+| ResNet-18 INT8 | 1 | 5,93 | 6.905 mW | 1.165 mJ | 950 mJ |
+| ResNet-18 INT8 | 4 | 12,65 | 18.725 mW | 1.481 mJ | 1.380 mJ |
+
+Befunde:
+- MobileNet INT8 mit 1 Thread braucht netto 173 mJ pro Bild: 3,4-mal weniger als ONNX FP32 (590 mJ) und 17,5-mal weniger als die PyTorch-Referenz (3.024 mJ).
+- 4 Threads sind schneller, kosten aber bei allen Varianten mehr Energie pro Bild (MobileNet INT8: 422 statt 173 mJ). Für den Dauerbetrieb ist 1 Thread sparsamer, 4 Threads lohnen sich nur, wenn die Latenz zählt.
+- CPU+GPU+ANE (combined_power) ist praktisch gleich der CPU-Leistung: GPU und Neural Engine werden nicht genutzt, die Messung ist tatsächlich reine CPU-Last.
+- Unsicherheit durch den Leerlauf: Grundlast stieg von 1.150 auf 1.397 mW. Mit dem einen oder anderen Wert statt des Mittels ändert sich die Netto-Energie bei MobileNet INT8 (1 Thread) um etwa ±2,5 %; die Reihenfolge der Varianten bleibt gleich.
+- Im Dauerbetrieb etwas langsamer als in der Latenzmessung (z. B. PyTorch 1 Thread 1,49 statt 1,73 Bilder/s), vermutlich Drosselung des lüfterlosen MacBook Air unter Dauerlast; nicht separat gemessen.
+- Einschränkung: powermetrics schätzt die Leistung aus Apples Energiemodell; keine elektrische Messung, Bildschirm und Peripherie nicht enthalten.
 
