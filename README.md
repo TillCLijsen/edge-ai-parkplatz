@@ -20,6 +20,30 @@ PKLot (Almeida et al., 2015), Lizenz CC BY 4.0.
 Download: http://www.inf.ufpr.br/vri/databases/PKLot.tar.gz
 Das Archiv wird nach `daten/` entpackt (nicht im Repo).
 
+## Ausführung
+
+Alle Schritte sind Python-Module im Ordner `src/` und werden aus dem Projektordner
+gestartet (Terminal oder PyCharm-Ausführungskonfiguration mit „Module name“).
+Reihenfolge:
+
+| Nr. | Befehl | Ergebnis |
+|---|---|---|
+| 1 | `python -m src.datenuebersicht` | `ergebnisse/datenuebersicht_bilder.csv` |
+| 2 | `python -m src.split` | `ergebnisse/split_tage.csv` (Tage → Training/Validierung/Test) |
+| 3 | `python -m src.pruefe_ausschnitte` | Vergleich unserer Ausschnitte mit PKLotSegmented |
+| 4 | `python -m src.ausschnitte_vorberechnen` | `daten/cache/` (64×64-Ausschnitte) |
+| 5 | `python -m src.baselines` | `ergebnisse/baselines.csv` |
+| 6 | `python -m src.training --modell mobilenet_v3_small --seed 42` | `modelle/*.pt`, `ergebnisse/training/` |
+| 7 | `python -m src.evaluation` | `ergebnisse/evaluation_pytorch.csv` |
+| 8 | `python -m src.export_onnx` | `modelle/onnx/*_fp32.onnx` mit Paritätstest |
+| 9 | `python -m src.pruning` | gepruntes Modell (50 %) als `.pt` und `.onnx` |
+| 10 | `python -m src.quantisierung` | `modelle/onnx/*_int8.onnx` |
+| 11 | `python -m src.messung` | Grösse, Genauigkeit, Latenz, Arbeitsspeicher in `ergebnisse/` |
+
+Gemeinsam genutzte Module: `konfiguration.py` (Pfade, Seed), `vorverarbeitung.py`
+(Ausschneiden und Normalisieren, identisch in Training und Betrieb),
+`datensatz.py`, `modelle.py`, `metriken.py`.
+
 ## Ordnerstruktur
 
 | Ordner | Inhalt |
