@@ -3,7 +3,8 @@
 Regeln (siehe docs/ENTSCHEIDUNGEN.md, E5 und E8):
 - Bilder eines Tages landen immer komplett in derselben Menge.
 - UFPR04 und UFPR05: 50 % der Tage Test A, vom Rest ca. 20 % Validierung.
-- PUCPR: 50 % der Tage Test B, der Rest nur für den Anpassungsversuch.
+- PUCPR: 50 % der Tage Test B, der Rest wird nicht verwendet
+  (Anpassungsversuch gestrichen, E13).
 - Regentage werden zuerst verteilt, damit jede Testmenge Regen enthält.
 
 Eingabe:  ergebnisse/datenuebersicht_bilder.csv (aus src/datenuebersicht.py)
