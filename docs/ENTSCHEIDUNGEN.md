@@ -20,6 +20,7 @@ Grundlage für Kapitel „Prozessreflexion und Dokumentation“ (Aufgabenteil 4a
 | E13 | 17.11.2026 | Hauptmodell MobileNetV3-Small Seed 43, Vergleich ResNet-18 Seed 43 (je beste Validierung); Zusatzversuch „Inbetriebnahme am neuen Standort“ gestrichen | Auswahl nach Testergebnis; Anpassungsversuch trotzdem durchführen | Auswahl nur über Validierung (E12); auf Test B gibt es keinen Genauigkeitsverlust, der sich durch Nachtraining aufholen liesse, ein nachträglich erschwerter Transfer wäre gezielte Effektsuche |
 | E14 | 17.11.2026 | Optimierungsvarianten: ONNX FP32, INT8 statisch (QDQ, Gewichte pro Kanal, Kalibrierung mit 1.000 Trainingsausschnitten, MinMax), 50 % globales L1-Pruning mit 2 Epochen Nachtraining, Pruning + INT8; Referenz: PyTorch FP32 auf CPU | Dynamische Quantisierung; strukturiertes Pruning; FP16 | Statische Quantisierung quantisiert auch die Aktivierungen und eignet sich für CNNs; unstrukturiertes Pruning ist der einfache Standard, sein fehlender Latenzgewinn auf dichter CPU-Hardware ist selbst ein Ergebnis; FP16 weggelassen, weil die Aufgabenstellung Quantisierung, Pruning und leichte Architekturen nennt und das Seitenlimit wenige, gut begründete Varianten verlangt |
 | E15 | 17.11.2026 | Messaufbau: nur CPU, 1 und 4 Threads, jede Messung in eigenem Prozess, 10 Bilder Aufwärmen, 3 Runden über 30 Testbilder je Parkplatz, Median und 95. Perzentil, 20 s Pause zwischen Läufen; gemessen wird die ganze Kette (JPEG dekodieren, ausschneiden, Inferenz, JSON) | Nur Inferenzzeit; Mittelwert | Die Anforderung ≤ 1 s gilt für die ganze Verarbeitung eines Kamerabilds; Median und P95 sind robust gegen Ausreisser; Pausen, weil das MacBook Air ohne Lüfter unter Dauerlast drosseln kann |
+| E16 | 17.11.2026 | INT8-Quantisierung mit Mischpräzision: die ersten zwei Faltungen und die Knoten dazwischen bleiben in FP32, alles andere INT8 (gleiche Regel für alle Modelle) | Alles INT8 mit MinMax (ursprünglich E14); Percentile-Kalibrierung; Quantisierung mit 16-Bit-Aktivierungen; quantisierungsbewusstes Training | Analyse auf der Validierung (src/quantisierung_analyse.py): nur die Ausgabe der ersten Faltung ist empfindlich (breiter Wertebereich, die meisten Kanäle nutzen nur einen kleinen Teil davon); Percentile verbessert, reicht aber nicht; 16-Bit-Aktivierungen sind auf der CPU nicht schneller als FP32; quantisierungsbewusstes Training wäre deutlich aufwendiger als nötig |
 
 ## Befunde Roboflow-Export (Grundlage für E4 und E5)
 
@@ -50,6 +51,9 @@ Grundlage für Kapitel „Prozessreflexion und Dokumentation“ (Aufgabenteil 4a
 | Datum | Problem | Wie entdeckt | Lösung |
 |---|---|---|---|
 | 16.11.2026 | Ausschnitte quer liegender Plätze wurden gespiegelt (affine Abbildung mit Determinante −1) | Vergleich mit PKLotSegmented (src/pruefe_ausschnitte.py): PUCPR-Korrelation nur 0,543 im Median, Vergleichsgrafik zeigte gespiegelte Ausschnitte | Abbildung auf reine Drehung korrigiert; danach Median 0,973, Minimum 0,838, Label 296/296 identisch |
+| 17.11.2026 | Messung ungültig: Skripte liefen gleichzeitig und der Mac lief auf Akku | Zeitstempel der Dateien überlappten, resnet18_int8 fehlte in der Messung, messaufbau.json zeigte netzteil_angeschlossen: false | Alle Läufe gestoppt, Kette nacheinander mit Netzteil neu gestartet; Skripte schreiben ihre Ausgaben seither zusätzlich nach ergebnisse/protokolle/ |
+| 17.11.2026 | Pruning machte das Modell unbrauchbar (Balanced Accuracy 0,5, nur noch eine Klasse) | Messung der Genauigkeit nach dem Pruning, danach Anteil Nullen je Schicht in der ONNX-Datei geprüft: Ausgabeschicht zu 100 % genullt, Nachtraining kann genullte Gewichte nicht zurückholen | Ausgabeschicht vom Pruning ausgenommen; Skript meldet jetzt Schichten mit mehr als 90 % Nullen |
+| 17.11.2026 | INT8 bei MobileNetV3-Small verlor stark an Genauigkeit (Test A 0,70, Test B 0,80; Validierung 0,72) | Messung der Genauigkeit; Ursache auf der Validierung gesucht: Gewichte allein auf 8 Bit unkritisch, dann jeden Zwischenwert einzeln auf 8 Bit gerundet: die Ausgabe der ersten Faltung ändert allein 31 % der Vorhersagen | Mischpräzision (E16); Auswahl nur über die Validierung, die Testergebnisse des ersten Laufs bleiben als gescheiterter Versuch dokumentiert |
 
 ## Läufe
 
@@ -62,3 +66,32 @@ Grundlage für Kapitel „Prozessreflexion und Dokumentation“ (Aufgabenteil 4a
 | 16.11.2026 | resnet18, Seed 42 | beste Balanced Accuracy 0,99826 (Epoche 5), Abbruch nach Epoche 8 | 29,2 min (MPS) |
 | 16.11.2026 | resnet18, Seed 43 | beste Balanced Accuracy 0,99878 (Epoche 4), Abbruch nach Epoche 7 | 25,9 min (MPS) |
 | 16.11.2026 | resnet18, Seed 44 | beste Balanced Accuracy 0,99759 (Epoche 1), Abbruch nach Epoche 4 | 13,9 min (MPS) |
+| 17.11.2026 | ONNX-Export MobileNet und ResNet (Seed 43) | Parität zu PyTorch auf 5.000 Ausschnitten aus Test A: 100 % gleiche Vorhersagen, max. Abweichung 8,8e-05 bzw. 1,6e-05 | ca. 1 min |
+| 17.11.2026 | Pruning 50 %, erster Versuch (Ausgabeschicht mitgeprunt) | 0,50000 direkt danach und nach beiden Epochen, verworfen | ca. 2 min |
+| 17.11.2026 | Pruning 50 %, Ausgabeschicht ausgenommen | 0,99880 direkt danach, 0,99878 nach Epoche 1 (gewählt), 0,99853 nach Epoche 2; vollständig genullt: SE-Schichten in features.1 (100 %), fast vollständig: features.4 (96–97 %) | ca. 2,5 min |
+| 17.11.2026 | Quantisierungsanalyse MobileNet | FP32 0,99917; INT8 MinMax 0,72000; INT8 Percentile 0,96274; INT8 mit ersten zwei Faltungen in FP32 0,99892; empfindlichster Zwischenwert: Ausgabe der ersten Faltung (Bereich −154,9 bis 164,6, ändert 29,8 % der Vorhersagen), alle anderen ≤ 0,2 % | ca. 3 min |
+| 17.11.2026 | Messung (Netzteil, nacheinander) | siehe Abschnitt „Ergebnisse Messung“ | ca. 37 min |
+
+## Ergebnisse Messung (17.11.2026, ergebnisse/messung_*.csv)
+
+MacBook Air M2 (Mac14,2), macOS 26.6.2, ONNX Runtime 1.32.0, Netzteil angeschlossen. Latenz = ganze Kette pro Kamerabild, Median über 90 Bilder.
+
+| Variante | Grösse (gzip) | Bal. Acc. Test A / Test B | Fehler pro 10.000 Plätze A / B | PUCPR 1 Thread | PUCPR 4 Threads | RAM-Spitze |
+|---|---|---|---|---|---|---|
+| PyTorch FP32 (Referenz) | – | wie ONNX FP32 | – | 577,9 ms | 510,5 ms | 584,6 MB |
+| MobileNet ONNX FP32 | 6,37 MB (5,66) | 0,9988 / 0,9992 | 11,76 / 7,24 | 128,9 ms | 47,1 ms | 202,4 MB |
+| MobileNet INT8 | 1,80 MB (1,49) | 0,9987 / 0,9990 | 13,35 / 9,47 | 30,6 ms | 24,4 ms | 193,4 MB |
+| MobileNet gepruned FP32 | 6,37 MB (3,41) | 0,9987 / 0,9993 | 13,27 / 6,75 | 128,8 ms | 47,0 ms | 202,3 MB |
+| MobileNet gepruned INT8 | 1,80 MB (1,11) | 0,9985 / 0,9993 | 14,62 / 7,43 | 30,3 ms | 24,3 ms | 189,2 MB |
+| ResNet-18 ONNX FP32 | 44,78 MB (41,54) | 0,9982 / 0,9984 | 18,27 / 14,96 | 558,1 ms | 222,3 ms | 255,3 MB |
+| ResNet-18 INT8 | 11,48 MB (9,66) | 0,9982 / 0,9985 | 18,11 / 14,37 | 146,7 ms | 76,8 ms | 211,0 MB |
+
+Befunde:
+- Alle Varianten erfüllen ≤ 1 s pro Bild deutlich, auch PyTorch FP32.
+- INT8 bei MobileNet: Verlust Balanced Accuracy 0,01 (Test A) bzw. 0,02 Prozentpunkte (Test B), Konfidenzintervalle überlappen; Inferenz bei 1 Thread 114,2 → 15,4 ms (7,4-fach), ganze Kette 4,2-fach schneller; gegenüber PyTorch 18,9-fach.
+- Bei INT8 und 4 Threads ist die Vorverarbeitung (JPEG dekodieren und ausschneiden, 15,3 ms) teurer als die Inferenz (9,1 ms): der Engpass liegt danach nicht mehr im Modell.
+- Pruning: keine Änderung bei Latenz und unkomprimierter Grösse (Nullen werden weiter gespeichert und gerechnet), nur komprimiert kleiner (5,66 → 3,41 MB); Genauigkeit unverändert.
+- RAM-Spitze wird von Python und ONNX Runtime bestimmt (Grundlast ca. 51 MB, Spitze 190–200 MB für alle MobileNet-Varianten), kaum vom Modell.
+- Übertragung: Meldung als JSON 135–351 Byte statt JPEG 258–333 KB pro Bild (ca. 1.000-fach weniger Daten).
+- ResNet-18 INT8: Mit der einheitlichen Regel (E16) bleiben auch dort die ersten zwei Faltungen in FP32; dadurch langsamer als im Lauf vom 17.11.2026, 11:47 Uhr ohne diese Regel (gleicher Messaufbau, dort 105,2 ms bei 1 Thread und 61,4 ms bei 4 Threads, Genauigkeit gleich). Wird im Bericht als Folge der einheitlichen Regel genannt.
+

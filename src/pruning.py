@@ -1,7 +1,8 @@
 """Pruning: entfernt 50 % der Gewichte (die betragsmässig kleinsten) und trainiert kurz nach.
 
 Verfahren: globales, unstrukturiertes L1-Pruning über alle Faltungs- und
-vollverbundenen Schichten (torch.nn.utils.prune), danach 2 Epochen Nachtraining
+vollverbundenen Schichten ausser der Ausgabeschicht (torch.nn.utils.prune),
+danach 2 Epochen Nachtraining.
 mit kleiner Lernrate, wobei die entfernten Gewichte auf null bleiben.
 Ausgewählt wird die Epoche mit der besten Balanced Accuracy auf der Validierung.
 
@@ -19,13 +20,18 @@ from tqdm import tqdm
 
 from src.datensatz import PlatzDatensatz
 from src.export_onnx import exportiere, lade_pytorch_modell, pruefe_paritaet
-from src.konfiguration import MODELL_ORDNER, ONNX_ORDNER, setze_seeds
+from src.konfiguration import MODELL_ORDNER, ONNX_ORDNER, setze_seeds, starte_protokoll
 from src.training import bewerte, waehle_geraet
 
 
 def zu_prunende_gewichte(modell):
-    """Alle Gewichte von Faltungs- und Linearschichten."""
-    return [(m, "weight") for m in modell.modules() if isinstance(m, (nn.Conv2d, nn.Linear))]
+    """Gewichte aller Faltungs- und Linearschichten ausser der Ausgabeschicht.
+
+    Die Ausgabeschicht bleibt vollständig erhalten. Beim globalen Pruning wurde
+    sie sonst komplett genullt, und das Modell sagte nur noch eine Klasse vorher.
+    """
+    schichten = [m for m in modell.modules() if isinstance(m, (nn.Conv2d, nn.Linear))]
+    return [(m, "weight") for m in schichten[:-1]]
 
 
 def anteil_null(modell):
@@ -42,6 +48,7 @@ def main():
     parser.add_argument("--epochen", type=int, default=2)
     parser.add_argument("--lernrate", type=float, default=1e-4)
     args = parser.parse_args()
+    starte_protokoll("pruning")
 
     setze_seeds(43)
     geraet = waehle_geraet()
@@ -56,6 +63,12 @@ def main():
     _, bal_acc = bewerte(modell, validierung, geraet)
     print(f"Direkt nach dem Pruning: Val. Balanced Accuracy {bal_acc:.5f}, "
           f"Anteil Null {anteil_null(modell):.1%}")
+    # Schichten melden, die fast vollständig genullt wurden
+    for modul_name, modul in modell.named_modules():
+        if hasattr(modul, "weight_mask"):
+            anteil = 1 - modul.weight_mask.float().mean().item()
+            if anteil > 0.9:
+                print(f"   Schicht {modul_name}: {anteil:.1%} null")
 
     training = DataLoader(PlatzDatensatz("training", augmentieren=True, seed=43), batch_size=256,
                           shuffle=True, generator=torch.Generator().manual_seed(43))

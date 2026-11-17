@@ -18,6 +18,7 @@ import csv
 import gzip
 import io
 import json
+import os
 import platform
 import resource
 import subprocess
@@ -30,7 +31,7 @@ import psutil
 from PIL import Image
 
 from src.ausschnitte_vorberechnen import CACHE_ORDNER, PKLOT
-from src.konfiguration import ERGEBNIS_ORDNER, ONNX_ORDNER, SEED
+from src.konfiguration import ERGEBNIS_ORDNER, ONNX_ORDNER, PROJEKT_ORDNER, SEED, starte_protokoll
 from src.metriken import werte_aus
 from src.vorverarbeitung import bereite_bild_vor, lese_plaetze, normalisiere
 
@@ -201,6 +202,12 @@ def main():
         einzelmessung(args.einzel, args.threads)
         return
 
+    starte_protokoll("messung")
+
+    # Mac wach halten, solange die Messung läuft (ersetzt caffeinate im Terminal)
+    if sys.platform == "darwin":
+        subprocess.Popen(["caffeinate", "-i", "-w", str(os.getpid())])
+
     varianten = args.varianten or sorted(p.stem for p in ONNX_ORDNER.glob("*.onnx")
                                          if "vorbereitet" not in p.stem)
     aufbau = messaufbau()
@@ -239,7 +246,8 @@ def main():
             time.sleep(PAUSE_SEKUNDEN)
             lauf = subprocess.run([sys.executable, "-m", "src.messung", "--einzel", v,
                                    "--threads", str(threads)],
-                                  capture_output=True, text=True, check=True)
+                                  capture_output=True, text=True, check=True,
+                                  cwd=PROJEKT_ORDNER)
             zeile = next(z for z in lauf.stdout.splitlines() if z.startswith("ERGEBNIS:"))
             ergebnis = json.loads(zeile.removeprefix("ERGEBNIS:"))
             latenzen += ergebnis

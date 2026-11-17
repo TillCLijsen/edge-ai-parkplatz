@@ -14,8 +14,7 @@ import numpy as np
 import onnx
 import onnxruntime as ort
 import torch
-
-from src.konfiguration import MODELL_ORDNER, ONNX_ORDNER
+from src.konfiguration import MODELL_ORDNER, ONNX_ORDNER, starte_protokoll
 from src.modelle import erstelle_modell
 
 STANDARD_MODELLE = ["mobilenet_v3_small_seed43", "resnet18_seed43"]
@@ -65,6 +64,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--modelle", nargs="+", default=STANDARD_MODELLE)
     args = parser.parse_args()
+    starte_protokoll("export_onnx")
     ONNX_ORDNER.mkdir(parents=True, exist_ok=True)
     for name in args.modelle:
         print(name)
