@@ -1,13 +1,13 @@
 """Simulierter Live-Betrieb: ein Testtag pro Parkplatz als Kamera-Stream.
 
-Teil 1 (Stream): Pro Parkplatz wird ein zufällig gewählter Testtag (Seed 42)
+Teil 1 (Stream): Pro Parkplatz wird ein zufällig gewählter Testtag aus (Seed 42)
 Bild für Bild in der Reihenfolge der Aufnahmezeit abgespielt. Pro Bild läuft
 die Kette wie auf dem Gerät: JPEG dekodieren, Plätze ausschneiden,
-MobileNetV3-Small INT8 mit 1 Thread, JSON-Meldung. Die Meldungen werden in
+MobileNetV3-Small INT8 mit 1 Thread, JSON-Meldung. Die Meldungen werden alle in
 eine Datei geschrieben; sie ersetzt die Übertragung an einen Server.
 
 Teil 2 (Zählung): Für den Betreiber zählt die Zahl freier Plätze. Verglichen
-wird pro Bild die gezählte mit der echten Zahl freier Plätze, einmal für die
+wird pro Bild die gezählte mit der wirklichen Zahl freier Plätze, einmal für die
 abgespielten Tage und einmal für alle Testbilder (aus den vorberechneten
 Ausschnitten). Plätze ohne Annotation zählen beim Vergleich nicht mit (E9).
 

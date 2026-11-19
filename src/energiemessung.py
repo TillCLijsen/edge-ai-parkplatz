@@ -14,9 +14,9 @@ Energie pro Bild:
   brutto = mittlere CPU-Leistung unter Last / Bilder pro Sekunde
   netto  = (CPU-Leistung unter Last - CPU-Leistung im Leerlauf) / Bilder pro Sekunde
 Einschränkung: powermetrics liefert eine Schätzung aus Apples Energiemodell,
-keine elektrische Messung.
+keine wirkliche elektrische Messung.
 
-powermetrics braucht Administratorrechte: macOS fragt beim Start einmal
+powermetrics braucht Administratorrechte: macOS fragt dadurch beim Start einmal
 nach dem Passwort. Weil macOS den Schreibtisch-Ordner auch vor diesem
 Prozess schützt, schreibt powermetrics zuerst nach /tmp.
 

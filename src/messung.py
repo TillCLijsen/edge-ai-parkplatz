@@ -1,4 +1,4 @@
-"""Misst alle Modellvarianten auf dem Zielgerät (MacBook mit Apple M2, nur CPU).
+"""Misst alle Modellvarianten auf dem Zielgerät (MacBook mit Apple M2, nur auf der CPU).
 
 Phase 1  Grösse der Modelldatei (unkomprimiert und gzip-komprimiert)
 Phase 2  Genauigkeit auf Test A und Test B mit ONNX Runtime

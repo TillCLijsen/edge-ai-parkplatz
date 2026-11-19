@@ -1,11 +1,11 @@
 """Teilt die Aufnahmetage von PKLot in Trainings-, Validierungs- und Testmengen.
 
-Regeln (siehe docs/ENTSCHEIDUNGEN.md, E5 und E8):
-- Bilder eines Tages landen immer komplett in derselben Menge.
+Regeln (stehen im docs/ENTSCHEIDUNGEN.md, E5 und E8):
+- Bilder von einem Tag landen immer komplett in derselben Menge.
 - UFPR04 und UFPR05: 50 % der Tage Test A, vom Rest ca. 20 % Validierung.
 - PUCPR: 50 % der Tage Test B, der Rest wird nicht verwendet
   (Anpassungsversuch gestrichen, E13).
-- Regentage werden zuerst verteilt, damit jede Testmenge Regen enthält.
+- Regentage werden zuerst verteilt, damit jede Testmenge Regen enthält um verälschte Resultate zu verhindern.
 
 Eingabe:  ergebnisse/datenuebersicht_bilder.csv (aus src/datenuebersicht.py)
 Ausgabe:  ergebnisse/split_tage.csv (Parkplatz, Tag, Regentag, Menge)

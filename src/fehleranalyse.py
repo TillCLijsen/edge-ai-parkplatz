@@ -1,9 +1,9 @@
 """Fehleranalyse des Hauptmodells (MobileNetV3-Small INT8) und Abbildungen für den Bericht.
 
-1. Ausreisser: die Testbilder mit den meisten falsch erkannten Plätzen; die
+1. Ausreisser: die Testbilder mit den meisten falsch erkannten Plätzen... die
    drei schlimmsten werden mit markierten Fehlern gespeichert.
 2. Fehlklassifikationen: die Ausschnitte, bei denen das Modell am sichersten
-   falsch lag, je 8 pro Fehlerrichtung.
+   falsch lag, sind je 8 pro Fehlerrichtung.
 3. Fehler nach Wetter: Fehler pro 10.000 Plätze, getrennt nach Richtung
    (frei als belegt erkannt / belegt als frei erkannt).
 4. Genauigkeit gegen Latenz: alle gemessenen Varianten in einer Abbildung.
