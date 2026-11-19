@@ -126,6 +126,7 @@ Befunde:
 - Unsicherheit durch den Leerlauf: Grundlast stieg von 1.150 auf 1.397 mW. Mit dem einen oder anderen Wert statt des Mittels ändert sich die Netto-Energie bei MobileNet INT8 (1 Thread) um etwa ±2,5 %; die Reihenfolge der Varianten bleibt gleich.
 - Im Dauerbetrieb etwas langsamer als in der Latenzmessung (z. B. PyTorch 1 Thread 1,49 statt 1,73 Bilder/s), vermutlich Drosselung des lüfterlosen MacBook Air unter Dauerlast; nicht separat gemessen.
 - Einschränkung: powermetrics schätzt die Leistung aus Apples Energiemodell; keine elektrische Messung, Bildschirm und Peripherie nicht enthalten.
+- Streuung innerhalb der Lastphasen (nachträglich aus energie_proben.csv, 19.11.2026): Standardabweichung der Leistung 0,8–5,9 % des Mittelwerts, 95-%-Konfidenzintervall des Mittelwerts ±0,2–1,6 %. Der Leerlaufwert (1.150 bzw. 1.397 mW statt Mittel) verschiebt die Netto-Energie je nach Variante um höchstens rund ±3 %.
 
 ## Ergebnisse Live-Betrieb (17.11.2026, ergebnisse/live_zaehlung.csv)
 
@@ -171,4 +172,5 @@ Befunde:
 - Regen: belegte Plätze werden häufiger als frei erkannt (Test A 47,9 pro 10.000 belegte gegenüber 11,1 bewölkt und 15,9 sonnig; Test B 13,3 gegenüber 2,3 und 23,0). In Test A beruht der Wert auf nur 13 Fehlern; in Test B ist Sonne schlechter als Regen. Keine eindeutige Wetterabhängigkeit belegbar; zwei der drei schlimmsten Bilder stammen aber von Regentagen.
 - Auffällig: PUCPR 2012-09-15 (sonnig) hat mehrere aufeinanderfolgende Bilder mit Fehlern (11:27–11:32 und 15:37–15:47), also dauerhafte Fehler an denselben Plätzen über mehrere Aufnahmen; Ursache nicht untersucht (möglicherweise Schatten).
 - INT8 kostet rund 2 Fehler pro 10.000 Plätze (10,94 statt 8,95) bei 4,2-fach kürzerer Latenz; ResNet-18 ist langsamer und zugleich ungenauer als MobileNet.
+- Konfusionsmatrix MobileNet INT8 (nachträglich aus messung_genauigkeit.csv, 19.11.2026; positive Klasse belegt): Test A TP 62.835, FN 97, TN 62.881, FP 71; Test B TP 78.517, FN 110, TN 127.209, FP 85. Trefferquote belegt 0,9985, frei 0,9992; Präzision „frei“ 0,9989 (A und B zusammen). Im Bericht Anhang D.
 
